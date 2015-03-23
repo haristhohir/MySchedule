@@ -12,6 +12,8 @@ public class MyScheduleSyncService extends Service {
     @Override
     public void onCreate() {
         Log.d("MyScheduleSyncService", "onCreate - MyScheduleSyncService");
+
+
         synchronized (sSyncAdapterLock) {
             if (sMyScheduleSyncAdapter == null) {
                 sMyScheduleSyncAdapter = new MyScheduleSyncAdapter(getApplicationContext(), true);

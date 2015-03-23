@@ -16,6 +16,9 @@
 package haris.app.myschedule;
 
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +27,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-import haris.app.myschedule.sync.MyScheduleSyncAdapter;
+import haris.app.myschedule.service.MyScheduleService;
 
 /**
  * A {@link android.preference.PreferenceActivity} that presents a set of application settings.
@@ -91,8 +94,20 @@ public class SettingsActivity extends PreferenceActivity
             preference.setSummary(stringValue);
         }
 
-        MyScheduleSyncAdapter.syncImmediately(this);
+        update();
+//        MyScheduleSyncAdapter.syncImmediately(this);
         return true;
     }
 
+    public void update(){
+        Intent alarmIntent = new Intent(getApplicationContext(), MyScheduleService.AlarmReceiver.class);
+
+        //Wrap in a pending intent which only fires once.
+        PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
+
+        AlarmManager am=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+
+        //Set the AlarmManager to wake up the system.
+        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pi);
+    }
 }

@@ -29,7 +29,7 @@
                 android:textColor="@color/grey_700"
                 android:textSize="20sp" />
         </LinearLayout>
-        <!-- Main content: high, low, art, weather state -->
+
         <LinearLayout
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"

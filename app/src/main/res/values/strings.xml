@@ -68,8 +68,8 @@
     <string name="format_humidity">Humidity: <xliff:g id="humidity">%1.0f</xliff:g> %%</string>
 
 
-    <string name="sync_account_type">myschedule.app.haris</string>
-    <string name="content_authority">haris.app.myschedule</string>
+    <string name="sync_account_type">haris.app.myschedule</string>
+    <string name="content_authority">haris.app.myschedule.sync.MyScheduleSyncAdapter</string>
 
     <!-- Notification Format -->
     <string name="format_notification">

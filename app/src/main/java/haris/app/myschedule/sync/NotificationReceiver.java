@@ -148,7 +148,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                 break;
             }while (cursor.moveToNext());
         }
-
+        db.close();
         notification.contentView = contentView;
         NotificationManager nm = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
         nm.notify(0, notification);

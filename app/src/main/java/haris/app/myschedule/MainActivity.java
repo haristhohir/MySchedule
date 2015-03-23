@@ -62,6 +62,8 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
         ScheduleFragment scheduleFragment = ((ScheduleFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast));
         scheduleFragment.setUseTodayLayout(!mTwoPane);
 
+
+
         MyScheduleSyncAdapter.initializeSyncAdapter(this);
 
 //        if (savedInstanceState == null) {
@@ -69,6 +71,8 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
 //                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
 //                    .commit();
 //        }
+
+
     }
 
     @Override
@@ -127,7 +131,7 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
         Intent i=new Intent(this, NotificationReceiver.class);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(this, alarmRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),alarmManager.INTERVAL_DAY * 7,pendingIntent);
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),alarmManager.INTERVAL_DAY * 7,pendingIntent);
         alarmRequestCode++;
     }
 

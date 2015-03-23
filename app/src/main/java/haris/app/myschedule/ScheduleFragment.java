@@ -16,6 +16,9 @@
 package haris.app.myschedule;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,6 +49,7 @@ import java.util.List;
 import haris.app.myschedule.data.ScheduleContract;
 import haris.app.myschedule.data.ScheduleContract.Schedule;
 import haris.app.myschedule.data.ScheduleDbHelper;
+import haris.app.myschedule.service.MyScheduleService;
 import haris.app.myschedule.sync.MyScheduleSyncAdapter;
 
 /**
@@ -168,7 +172,8 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            updateSchedule();
+//            updateSchedule();
+            update();
             return true;
         }
 
@@ -456,5 +461,18 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         if(mScheduleAdapter != null){
             mScheduleAdapter.setUseTodayLayout(mUseTodayLayout);
         }
+    }
+
+    public void update(){
+        Log.d(LOG_TAG, "Update...");
+        Intent alarmIntent = new Intent(getActivity(), MyScheduleService.AlarmReceiver.class);
+
+        //Wrap in a pending intent which only fires once.
+        PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
+
+        AlarmManager am=(AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
+
+        //Set the AlarmManager to wake up the system.
+        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
     }
 }
