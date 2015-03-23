@@ -52,7 +52,6 @@ import haris.app.myschedule.R;
 import haris.app.myschedule.ScheduleFragment;
 import haris.app.myschedule.data.ScheduleContract;
 import haris.app.myschedule.data.ScheduleDbHelper;
-import haris.app.myschedule.sync.NotificationReceiver;
 
 
 public class MyScheduleService extends IntentService {
@@ -192,22 +191,13 @@ public class MyScheduleService extends IntentService {
                 calendar.set(Calendar.MINUTE, intMinute);
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
-//                long alarm = 0;
-//                if(calendar.getTimeInMillis() <= Calendar.getInstance().getTimeInMillis()){
-//                    Log.d(sLOG_TAG, "alarm "+calendar.getTimeInMillis()+
-//                    ", now "+Calendar.getInstance().getTimeInMillis());
-//                    alarm = calendar.getTimeInMillis() + (AlarmManager.INTERVAL_DAY+7);
-//                    Log.d(sLOG_TAG, "set alarm "+alarm);
-//                }
-
-
                 if(calendar.getTime().before(Calendar.getInstance().getTime())){
                     Log.d(sLOG_TAG, " Before "+calendar.getTime().before(Calendar.getInstance().getTime()));
                     Log.d(sLOG_TAG, "TimeInMillis Before "+calendar.DATE);
                     calendar.add(Calendar.DATE, 7);
                     Log.d(sLOG_TAG, "New TimeInMillis "+calendar.DATE);
                 }
-//                calendar.setTimeInMillis(alarm);
+
                 setScheduleAlarm(calendar);
             }while (cursor.moveToNext());
         }
@@ -217,8 +207,6 @@ public class MyScheduleService extends IntentService {
     static int alarmRequestCode =1;
 
     public static void setScheduleAlarm(Calendar calendar){
-//        Toast.makeText(getApplicationContext(), "Alarm actived at " + calendar.getTime(), Toast.LENGTH_LONG).show();
-
         AlarmManager alarmManager=(AlarmManager)context.getSystemService(context.ALARM_SERVICE);
         Intent i=new Intent(context, NotificationReceiver.class);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(context, alarmRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);

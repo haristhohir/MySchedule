@@ -29,14 +29,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import haris.app.myschedule.sync.MyScheduleSyncAdapter;
-import haris.app.myschedule.sync.NotificationReceiver;
+import haris.app.myschedule.service.NotificationReceiver;
 
 public class MainActivity extends ActionBarActivity implements ScheduleFragment.Callback {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
-    //    private final String FORECASTFRAGMENT_TAG = "FFTAG";
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private String mLocation;
     private boolean mTwoPane;
@@ -61,17 +59,6 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
 
         ScheduleFragment scheduleFragment = ((ScheduleFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast));
         scheduleFragment.setUseTodayLayout(!mTwoPane);
-
-
-
-        MyScheduleSyncAdapter.initializeSyncAdapter(this);
-
-//        if (savedInstanceState == null) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
-//                    .commit();
-//        }
-
 
     }
 

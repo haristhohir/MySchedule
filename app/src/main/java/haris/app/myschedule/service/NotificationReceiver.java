@@ -1,4 +1,4 @@
-package haris.app.myschedule.sync;
+package haris.app.myschedule.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;

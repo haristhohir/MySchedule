@@ -45,7 +45,7 @@
         </activity>
 
         <receiver
-            android:name=".sync.NotificationReceiver"
+            android:name=".service.NotificationReceiver"
             android:process=":remote" />
 
         <!--<provider-->
