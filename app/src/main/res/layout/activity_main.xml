@@ -1,0 +1,13 @@
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools" android:id="@+id/container"-->
+    <!--android:layout_width="match_parent" android:layout_height="match_parent"-->
+    <!--tools:context=".MainActivity" tools:ignore="MergeRootFrame" />-->
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_forecast"
+    android:name="haris.app.myschedule.ScheduleFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="haris.app.myschedule.ScheduleFragment"
+    tools:layout="@android:layout/list_content" />

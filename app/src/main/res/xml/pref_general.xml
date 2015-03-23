@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditTextPreference
+        android:title="@string/pref_user_id_label"
+        android:key="@string/pref_user_id_key"
+        android:defaultValue="@string/pref_user_id_default"
+        android:inputType="text"
+        android:singleLine="true" />
+
+
+    <CheckBoxPreference
+        android:title="@string/pref_enable_notification_label"
+        android:key="@string/pref_enable_notification_key"
+        android:summaryOff="@string/pref_enable_notification_false"
+        android:summaryOn="@string/pref_enable_notification_true"
+        android:defaultValue="@string/pref_enable_notification_default" />
+
+    <CheckBoxPreference
+        android:title="@string/pref_enable_ringtone_label"
+        android:key="@string/pref_enable_ringtone_key"
+        android:summaryOff="@string/pref_enable_ringtone_false"
+        android:summaryOn="@string/pref_enable_ringtone_true"
+        android:defaultValue="@string/pref_enable_ringtone_default" />
+
+    <CheckBoxPreference
+        android:title="@string/pref_enable_vibration_label"
+        android:key="@string/pref_enable_vibration_key"
+        android:summaryOff="@string/pref_enable_vibration_false"
+        android:summaryOn="@string/pref_enable_vibration_true"
+        android:defaultValue="@string/pref_enable_vibration_default" />
+
+    <ListPreference
+        android:title="@string/pref_notification_time_label"
+        android:key="@string/pref_notification_time_key"
+        android:defaultValue="@string/pref_notification_time_before_30"
+        android:entryValues="@array/pref_notification_time_values"
+        android:entries="@array/pref_notification_time_options" />
+
+</PreferenceScreen>
