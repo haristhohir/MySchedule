@@ -5,7 +5,7 @@
     <!--<style name="AppTheme" parent="android:Theme.Material">-->
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryDark">@color/dark_blue</item>
+        <item name="colorPrimaryDark">@color/blue</item>
     </style>
 
     <style name="ForecastTheme" parent="AppTheme">

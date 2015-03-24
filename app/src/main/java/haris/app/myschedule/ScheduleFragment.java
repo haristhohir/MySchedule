@@ -46,11 +46,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import haris.app.myschedule.data.ScheduleContract;
 import haris.app.myschedule.data.ScheduleContract.Schedule;
 import haris.app.myschedule.data.ScheduleDbHelper;
 import haris.app.myschedule.service.MyScheduleService;
-import haris.app.myschedule.sync.MyScheduleSyncAdapter;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link android.widget.ListView} layout.
@@ -68,27 +66,6 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
 
     //    private ArrayAdapter<String> mForecastAdapter;
     private static final int FORECAST_LOADER = 0;
-    // For the forecast view we're showing only a small subset of the stored data.
-// Specify the columns we need.
-    private static final String[] FORECAST_COLUMNS = {
-// In this case the id needs to be fully qualified with a table name, since
-// the content provider joins the location & weather tables in the background
-// (both have an _id column)
-// On the one hand, that's annoying. On the other, you can search the weather table
-// using the location set by the user, which is only in the Location table.
-// So the convenience is worth it.
-            ScheduleContract.WeatherEntry.TABLE_NAME + "." + ScheduleContract.WeatherEntry._ID,
-            ScheduleContract.WeatherEntry.COLUMN_DATE,
-            ScheduleContract.WeatherEntry.COLUMN_SHORT_DESC,
-            ScheduleContract.WeatherEntry.COLUMN_MAX_TEMP,
-            ScheduleContract.WeatherEntry.COLUMN_MIN_TEMP,
-            ScheduleContract.LocationEntry.COLUMN_LOCATION_SETTING,
-            ScheduleContract.WeatherEntry.COLUMN_WEATHER_ID,
-            ScheduleContract.LocationEntry.COLUMN_COORD_LAT,
-            ScheduleContract.LocationEntry.COLUMN_COORD_LONG
-
-    };
-
 
     private static final String[] SCHEDULE_COLUMNS = {
             Schedule.TABLE_NAME + "." + Schedule._ID,
@@ -114,20 +91,6 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
     public static final int COL_SCHEDULE_LESSON_SHORT = 8;
     public static final int COL_SCHEDULE_DAY_ID = 9;
 
-
-
-
-    // These indices are tied to FORECAST_COLUMNS. If FORECAST_COLUMNS changes, these
-// must change.
-    static final int COL_WEATHER_ID = 0;
-    static final int COL_WEATHER_DATE = 1;
-    static final int COL_WEATHER_DESC = 2;
-    static final int COL_WEATHER_MAX_TEMP = 3;
-    static final int COL_WEATHER_MIN_TEMP = 4;
-    static final int COL_LOCATION_SETTING = 5;
-    static final int COL_WEATHER_CONDITION_ID = 6;
-    static final int COL_COORD_LAT = 7;
-    static final int COL_COORD_LONG = 8;
     private ScheduleAdapter mScheduleAdapter;
     private ArrayAdapter mSchedule;
     private ListView mListView;
@@ -162,7 +125,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forecastfragment, menu);
+        inflater.inflate(R.menu.scheduleFragment, menu);
     }
 
     @Override
@@ -172,7 +135,6 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-//            updateSchedule();
             update();
             return true;
         }
@@ -370,61 +332,15 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         super.onActivityCreated(savedInstanceState);
     }
 
-    void onLocationChanged(){
-        updateSchedule();
-        getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
-    }
-
-
-    private void openPreferredLocationInMap() {
-        if(null != mScheduleAdapter){
-            Cursor c = mScheduleAdapter.getCursor();
-            if(null != c){
-                c.moveToPosition(0);
-                String posLat = c.getString(COL_COORD_LAT);
-                String posLong = c.getString(COL_COORD_LONG);
-                Uri geoLocation = Uri.parse("geo:" + posLat + "," + posLong);
-
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(geoLocation);
-
-                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivity(intent);
-                    Log.d(LOG_TAG, "Call " + geoLocation.toString() + ", receiving apps installed!");
-                } else {
-                    Log.d(LOG_TAG, "Couldn't call " + geoLocation.toString() + ", no receiving apps installed!");
-                }
-
-            }
-        }
-
-
-
-
-    }
-
-    private void updateSchedule() {
-        MyScheduleSyncAdapter.syncImmediately(getActivity());
-    }
-
-
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String locationSetting = Utility.getPreferredLocation(getActivity());
-
-        // Sort order: Ascending, by date.
-        String sortOrder = ScheduleContract.WeatherEntry.COLUMN_DATE + " ASC";
-        Uri weatherForLocationUri = ScheduleContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                locationSetting, System.currentTimeMillis());
         Uri schedule = Schedule.CONTENT_URI;
 
         ScheduleDbHelper mOpenHelper = new ScheduleDbHelper(getActivity());
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
-//        Cursor cursorLoader = db.rawQuery("", SCHEDULE_COLUMNS);
 
         String filter = Schedule.COLUMN_DAY + " NOT LIKE '' GROUP BY " + Schedule.COLUMN_DAY;
-
 
 //        return db.rawQuery("SELECT * FROM "+Schedule.TABLE_NAME +" ORDER BY "+Schedule.COLUMN_DAY, SCHEDULE_COLUMNS);
         return new CursorLoader(getActivity(),
@@ -434,12 +350,6 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
                 null,
                 Schedule.COLUMN_ID);
 
-//        return new CursorLoader(getActivity(),
-//                weatherForLocationUri,
-//                FORECAST_COLUMNS,
-//                null,
-//                null,
-//                sortOrder);
     }
 
     @Override

@@ -16,7 +16,7 @@
     <string name="action_share">Share</string>
 
     <!-- Menu label to fetch updated weather info from the server -->
-    <string name="action_refresh" translatable="false">Refresh</string>
+    <string name="action_update" translatable="false">Update</string>
     <string name="title_activity_detail">Details</string>
     <string name="title_activity_settings">Settings</string>
 
@@ -91,7 +91,7 @@
 
     <string name="pref_user_id_label">User ID</string>
     <string name="pref_user_id_key" translatable="false">user_id</string>
-    <string name="pref_user_id_default" translatable="false">12345</string>
+    <string name="pref_user_id_default" translatable="false">125150200111103</string>
 
     <string name="pref_enable_notification_label">Notification</string>
     <string name="pref_enable_notification_key" translatable="false">notification</string>

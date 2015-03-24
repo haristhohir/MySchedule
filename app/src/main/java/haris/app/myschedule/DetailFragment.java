@@ -17,13 +17,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import haris.app.myschedule.data.ScheduleContract;
 import haris.app.myschedule.data.ScheduleContract.Schedule;
-import haris.app.myschedule.data.ScheduleContract.WeatherEntry;
 import haris.app.myschedule.data.ScheduleDbHelper;
 
 /**
@@ -38,21 +35,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private ShareActionProvider mShareActionProvider;
     private String mSchedule;
     private static final int DETAIL_LOADER = 0;
-    private static final String[] DETAIL_COLUMNS1 = {
-            WeatherEntry.TABLE_NAME + "." + WeatherEntry._ID,
-            WeatherEntry.COLUMN_DATE,
-            WeatherEntry.COLUMN_SHORT_DESC,
-            WeatherEntry.COLUMN_MAX_TEMP,
-            WeatherEntry.COLUMN_MIN_TEMP,
-            WeatherEntry.COLUMN_HUMIDITY,
-            WeatherEntry.COLUMN_PRESSURE,
-            WeatherEntry.COLUMN_WIND_SPEED,
-            WeatherEntry.COLUMN_DEGREES,
-            WeatherEntry.COLUMN_WEATHER_ID,
-// This works because the WeatherProvider returns location data joined with
-// weather data, even though they're stored in two different tables.
-            ScheduleContract.LocationEntry.COLUMN_LOCATION_SETTING
-    };
+
     private static final String[] DETAIL_COLUMNS = {
             Schedule.TABLE_NAME + "." + Schedule._ID,
             Schedule.COLUMN_ID,
@@ -76,32 +59,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public static final int COL_SCHEDULE_LESSON_SHORT = 8;
 
 
-
-    // These indices are tied to DETAIL_COLUMNS. If DETAIL_COLUMNS changes, these
-// must change.
-    public static final int COL_WEATHER_ID = 0;
-    public static final int COL_WEATHER_DATE = 1;
-    public static final int COL_WEATHER_DESC = 2;
-    public static final int COL_WEATHER_MAX_TEMP = 3;
-    public static final int COL_WEATHER_MIN_TEMP = 4;
-    public static final int COL_WEATHER_HUMIDITY = 5;
-    public static final int COL_WEATHER_PRESSURE = 6;
-    public static final int COL_WEATHER_WIND_SPEED = 7;
-    public static final int COL_WEATHER_DEGREES = 8;
-    public static final int COL_WEATHER_CONDITION_ID = 9;
-
     private ScheduleDbHelper mOpenHelper;
 
-
-    private ImageView mIconView;
-    private TextView mFriendlyDateView;
-    private TextView mDateView;
-    private TextView mDescriptionView;
-    private TextView mHighTempView;
-    private TextView mLowTempView;
-    private TextView mHumidityView;
-    private TextView mWindView;
-    private TextView mPressureView;
     private TextView mDay;
     private TextView mLessons;
     private ListView mListLessons;
@@ -131,9 +90,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return rootView;
     }
 
-
-
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 // Inflate the menu; this adds items to the action bar if it is present.
@@ -145,16 +101,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 // If onLoadFinished happens before this, we can go ahead and set the share intent now.
         if (mSchedule != null) {
             mShareActionProvider.setShareIntent(createShareForecastIntent());
-        }
-    }
-
-    void onLocationChanged(String newLocation){
-        Uri uri = mUri;
-        if(null !=  uri){
-            long date = ScheduleContract.WeatherEntry.getDateFromUri(uri);
-            Uri updateUri = ScheduleContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
-            mUri = updateUri;
-            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }
 
@@ -172,7 +118,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        Log.v(LOG_TAG, "In onCreateLoader");
+        Log.v(LOG_TAG, "In onCreateLoader");
 //        Intent intent = getActivity().getIntent();
 //        if (intent == null || intent.getData() == null) {
 //

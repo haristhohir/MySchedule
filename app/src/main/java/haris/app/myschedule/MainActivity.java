@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import haris.app.myschedule.service.NotificationReceiver;
+import haris.app.myschedule.service.MyScheduleService;
 
 public class MainActivity extends ActionBarActivity implements ScheduleFragment.Callback {
 
@@ -43,7 +43,7 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLocation = Utility.getPreferredLocation(this);
+        FontsOverride.setDefaultFont(this, "DEFAULT", "fonts/Roboto-Regular.ttf");
         setContentView(R.layout.activity_main);
         if(findViewById(R.id.schedule_detail_container)!=null){
             mTwoPane = true;
@@ -115,7 +115,7 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
         Toast.makeText(this, "Alarm actived at " + calendar.getTime(), Toast.LENGTH_LONG).show();
 
         AlarmManager alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
-        Intent i=new Intent(this, NotificationReceiver.class);
+        Intent i=new Intent(this, MyScheduleService.AlarmReceiver.class);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(this, alarmRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 //        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),alarmManager.INTERVAL_DAY * 7,pendingIntent);
@@ -126,20 +126,6 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
     @Override
     protected void onResume(){
         super.onResume();
-        String location = Utility.getPreferredLocation(this);
-        // update the location in our second pane using the fragment manager
-        if(location != null && !location.equals(mLocation)){
-//            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
-            ScheduleFragment ff = (ScheduleFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
-            if(null != ff){
-                ff.onLocationChanged();
-            }
-            DetailFragment df = (DetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
-            if(null != df){
-                df.onLocationChanged(location);
-            }
-            mLocation = location;
-        }
 
     }
 

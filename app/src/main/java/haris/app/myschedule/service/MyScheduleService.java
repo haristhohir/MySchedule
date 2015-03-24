@@ -66,7 +66,7 @@ public class MyScheduleService extends IntentService {
     private static TextView nextLabel;
 
     public MyScheduleService() {
-        super("Sunshine");
+        super("MySchedule");
     }
     static Context context;
 
@@ -93,38 +93,32 @@ public class MyScheduleService extends IntentService {
             Log.d(sLOG_TAG, url.toString());
 
 
-// Create the request to OpenWeatherMap, and open the connection
+
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
-// Read the input stream into a String
+
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
-// Nothing to do.
                 return;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = reader.readLine()) != null) {
-// Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-// But it does make debugging a *lot* easier if you print out the completed
-// buffer for debugging.
                 buffer.append(line + "\n");
             }
             if (buffer.length() == 0) {
-// Stream was empty. No point in parsing.
+
                 return;
             }
             forecastJsonStr = buffer.toString();
-//            getWeatherDataFromJson(forecastJsonStr, locationQuery);
 
             getDataJson(forecastJsonStr);
 
         } catch (IOException e) {
             Log.e(sLOG_TAG, "Error ", e);
-// If the code didn't successfully get the weather data, there's no point in attempting
-// to parse it.
+
         } catch (JSONException e) {
             Log.e(sLOG_TAG, e.getMessage(), e);
             e.printStackTrace();
@@ -142,15 +136,6 @@ public class MyScheduleService extends IntentService {
         }
         return;
     }
-
-    /**
-     * Take the String representing the complete forecast in JSON Format and
-     * pull out the data we need to construct the Strings needed for the wireframes.
-     *
-     * Fortunately parsing is easy:  constructor takes the JSON string and converts it
-     * into an Object hierarchy for us.
-     */
-
 
 
     public static void setAlarmNotification(){
@@ -191,12 +176,12 @@ public class MyScheduleService extends IntentService {
                 calendar.set(Calendar.MINUTE, intMinute);
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
-                if(calendar.getTime().before(Calendar.getInstance().getTime())){
-                    Log.d(sLOG_TAG, " Before "+calendar.getTime().before(Calendar.getInstance().getTime()));
-                    Log.d(sLOG_TAG, "TimeInMillis Before "+calendar.DATE);
-                    calendar.add(Calendar.DATE, 7);
-                    Log.d(sLOG_TAG, "New TimeInMillis "+calendar.DATE);
-                }
+//                if(calendar.getTime().before(Calendar.getInstance().getTime())){
+//                    Log.d(sLOG_TAG, " Before "+calendar.getTime().before(Calendar.getInstance().getTime()));
+//                    Log.d(sLOG_TAG, "TimeInMillis Before "+calendar.DATE);
+//                    calendar.add(Calendar.DATE, 7);
+//                    Log.d(sLOG_TAG, "New TimeInMillis "+calendar.DATE);
+//                }
 
                 setScheduleAlarm(calendar);
             }while (cursor.moveToNext());
@@ -207,12 +192,36 @@ public class MyScheduleService extends IntentService {
     static int alarmRequestCode =1;
 
     public static void setScheduleAlarm(Calendar calendar){
+        Log.d(sLOG_TAG, "Calendar hour : "+calendar.getTime().getHours()+", DATE : "+calendar.DATE);
+
+        if(isPassed(calendar)){
+            calendar.add(Calendar.DAY_OF_WEEK, 7);
+            Log.d(sLOG_TAG, "TIME PASSED!!! at "+ calendar.getTime() );
+        }
         AlarmManager alarmManager=(AlarmManager)context.getSystemService(context.ALARM_SERVICE);
         Intent i=new Intent(context, NotificationReceiver.class);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(context, alarmRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),alarmManager.INTERVAL_DAY * 7,pendingIntent);
         alarmRequestCode++;
+    }
+
+    public static boolean isPassed(Calendar calendar){
+        Log.d(sLOG_TAG, "Input day " + calendar.getTime().getDay());
+        Log.d(sLOG_TAG, "Current day " + Calendar.getInstance().getTime().getDay());
+
+        if(calendar.getTime().getDay() < Calendar.getInstance().getTime().getDay()){
+            if(calendar.getTime().getHours() < Calendar.getInstance().getTime().getHours()){
+                if(calendar.getTime().getMinutes() < Calendar.getInstance().getTime().getMinutes()){
+                    return true;
+                }else {
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        }
+            return false;
     }
 
     private static void cancelAlarm(){
@@ -404,6 +413,7 @@ public class MyScheduleService extends IntentService {
             Intent sendIntent = new Intent(context, MyScheduleService.class);
 //            sendIntent.putExtra(MyScheduleService.LOCATION_QUERY_EXTRA, intent.getStringExtra(MyScheduleService.LOCATION_QUERY_EXTRA));
             context.startService(sendIntent);
+            Log.d(sLOG_TAG, "Receive Broadcast.......");
 
         }
     }

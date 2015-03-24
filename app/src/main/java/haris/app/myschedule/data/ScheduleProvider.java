@@ -21,7 +21,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
@@ -31,87 +30,14 @@ public class ScheduleProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private ScheduleDbHelper mOpenHelper;
 
-    static final int WEATHER = 100;
-    static final int WEATHER_WITH_LOCATION = 101;
-    static final int WEATHER_WITH_LOCATION_AND_DATE = 102;
-    static final int LOCATION = 300;
     static final int SCHEDULE = 777;
     static final int SEQUENCE = 111;
     static final int SCHEDULE_WITH_ID = 333;
     static final int SCHEDULE_WITH_DAY = 444;
 
-
-
-
     public final String LOG_TAG = ScheduleProvider.class.getSimpleName();
 
-    private static final SQLiteQueryBuilder sWeatherByLocationSettingQueryBuilder;
-
-    static{
-        sWeatherByLocationSettingQueryBuilder = new SQLiteQueryBuilder();
-        sWeatherByLocationSettingQueryBuilder.setTables(
-                ScheduleContract.WeatherEntry.TABLE_NAME + " INNER JOIN " +
-                        ScheduleContract.LocationEntry.TABLE_NAME +
-                        " ON " + ScheduleContract.WeatherEntry.TABLE_NAME +
-                        "." + ScheduleContract.WeatherEntry.COLUMN_LOC_KEY +
-                        " = " + ScheduleContract.LocationEntry.TABLE_NAME +
-                        "." + ScheduleContract.LocationEntry._ID);
-    }
-
-    private static final String sLocationSettingSelection =
-            ScheduleContract.LocationEntry.TABLE_NAME+
-                    "." + ScheduleContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? ";
-    private static final String sLocationSettingWithStartDateSelection =
-            ScheduleContract.LocationEntry.TABLE_NAME+
-                    "." + ScheduleContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND " +
-                    ScheduleContract.WeatherEntry.COLUMN_DATE + " >= ? ";
-
-    private static final String sLocationSettingAndDaySelection =
-            ScheduleContract.LocationEntry.TABLE_NAME +
-                    "." + ScheduleContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ? AND " +
-                    ScheduleContract.WeatherEntry.COLUMN_DATE + " = ? ";
-
-    private Cursor getWeatherByLocationSetting(Uri uri, String[] projection, String sortOrder) {
-        String locationSetting = ScheduleContract.WeatherEntry.getLocationSettingFromUri(uri);
-        long startDate = ScheduleContract.WeatherEntry.getStartDateFromUri(uri);
-
-        String[] selectionArgs;
-        String selection;
-
-        if (startDate == 0) {
-            selection = sLocationSettingSelection;
-            selectionArgs = new String[]{locationSetting};
-        } else {
-            selectionArgs = new String[]{locationSetting, Long.toString(startDate)};
-            selection = sLocationSettingWithStartDateSelection;
-        }
-
-        return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder
-        );
-    }
-
-    private Cursor getWeatherByLocationSettingAndDate(
-            Uri uri, String[] projection, String sortOrder) {
-        String locationSetting = ScheduleContract.WeatherEntry.getLocationSettingFromUri(uri);
-        long date = ScheduleContract.WeatherEntry.getDateFromUri(uri);
-
-        return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                projection,
-                sLocationSettingAndDaySelection,
-                new String[]{locationSetting, Long.toString(date)},
-                null,
-                null,
-                sortOrder
-        );
-    }
-
-    /*
+     /*
         Students: Here is where you need to create the UriMatcher. This UriMatcher will
         match each URI to the WEATHER, WEATHER_WITH_LOCATION, WEATHER_WITH_LOCATION_AND_DATE,
         and LOCATION integer constants defined above.  You can test this by uncommenting the
@@ -126,10 +52,6 @@ public class ScheduleProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = ScheduleContract.CONTENT_AUTHORITY;
         // For each type of URI you want to add, create a corresponding code.
-        matcher.addURI(authority, ScheduleContract.PATH_WEATHER, WEATHER);
-        matcher.addURI(authority, ScheduleContract.PATH_WEATHER + "/*", WEATHER_WITH_LOCATION);
-        matcher.addURI(authority, ScheduleContract.PATH_WEATHER + "/*/#", WEATHER_WITH_LOCATION_AND_DATE);
-        matcher.addURI(authority, ScheduleContract.PATH_LOCATION, LOCATION);
         matcher.addURI(authority, ScheduleContract.PATH_SCHEDULE, SCHEDULE);
         matcher.addURI(authority, ScheduleContract.PATH_SCHEDULE + "/*/#", SCHEDULE_WITH_ID);
         matcher.addURI(authority, ScheduleContract.PATH_SCHEDULE + "/*/*", SCHEDULE_WITH_DAY);
@@ -161,14 +83,6 @@ public class ScheduleProvider extends ContentProvider {
 
         switch (match) {
             // Student: Uncomment and fill out these two cases
-            case WEATHER_WITH_LOCATION_AND_DATE:
-                return ScheduleContract.WeatherEntry.CONTENT_ITEM_TYPE;
-            case WEATHER_WITH_LOCATION:
-                return ScheduleContract.WeatherEntry.CONTENT_TYPE;
-            case WEATHER:
-                return ScheduleContract.WeatherEntry.CONTENT_TYPE;
-            case LOCATION:
-                return ScheduleContract.LocationEntry.CONTENT_TYPE;
             case SCHEDULE:
                 return ScheduleContract.Schedule.CONTENT_TYPE;
             case SEQUENCE:
@@ -187,42 +101,6 @@ public class ScheduleProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             // "weather/*/*"
-            case WEATHER_WITH_LOCATION_AND_DATE:
-            {
-                retCursor = getWeatherByLocationSettingAndDate(uri, projection, sortOrder);
-                break;
-            }
-            // "weather/*"
-            case WEATHER_WITH_LOCATION: {
-                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
-                break;
-            }
-            // "weather"
-            case WEATHER: {
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        ScheduleContract.WeatherEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-                break;
-            }
-            // "location"
-            case LOCATION: {
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        ScheduleContract.LocationEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-                break;
-            }
 
             case SCHEDULE: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
@@ -280,25 +158,7 @@ public class ScheduleProvider extends ContentProvider {
         Uri returnUri;
 
         switch (match) {
-            case WEATHER: {
-                Log.d(LOG_TAG, "WEATHER");
-                normalizeDate(values);
-                long _id = db.insert(ScheduleContract.WeatherEntry.TABLE_NAME, null, values);
-                if ( _id > 0 )
-                    returnUri = ScheduleContract.WeatherEntry.buildWeatherUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
-            case LOCATION: {
-                Log.d(LOG_TAG, "LOCATION");
-                long _id = db.insert(ScheduleContract.LocationEntry.TABLE_NAME, null, values);
-                if ( _id > 0 )
-                    returnUri = ScheduleContract.LocationEntry.buildLocationUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
+
             case SCHEDULE:{
                 Log.d(LOG_TAG, "Insert schedule");
                 long _id = db.insert(ScheduleContract.Schedule.TABLE_NAME, null, values);
@@ -330,12 +190,6 @@ public class ScheduleProvider extends ContentProvider {
         // Oh, and you should notify the listeners here.
         if(null == selection) selection = "1";
         switch (match){
-            case WEATHER:
-                rowsDeleted = db.delete(ScheduleContract.WeatherEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            case LOCATION:
-                rowsDeleted = db.delete(ScheduleContract.LocationEntry.TABLE_NAME, selection, selectionArgs);
-                break;
             case SCHEDULE:
                 rowsDeleted = db.delete(ScheduleContract.Schedule.TABLE_NAME, selection, selectionArgs);
                 break;
@@ -353,14 +207,6 @@ public class ScheduleProvider extends ContentProvider {
         return rowsDeleted;
     }
 
-    private void normalizeDate(ContentValues values) {
-        // normalize the date value
-        if (values.containsKey(ScheduleContract.WeatherEntry.COLUMN_DATE)) {
-            long dateValue = values.getAsLong(ScheduleContract.WeatherEntry.COLUMN_DATE);
-            values.put(ScheduleContract.WeatherEntry.COLUMN_DATE, ScheduleContract.normalizeDate(dateValue));
-        }
-    }
-
     @Override
     public int update(
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
@@ -370,12 +216,6 @@ public class ScheduleProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         int rowsUpdated;
         switch (match){
-            case WEATHER:
-                rowsUpdated = db.update(ScheduleContract.WeatherEntry.TABLE_NAME, values, selection, selectionArgs);
-                break;
-            case LOCATION:
-                rowsUpdated = db.update(ScheduleContract.LocationEntry.TABLE_NAME, values, selection, selectionArgs);
-                break;
             case SCHEDULE:
                 rowsUpdated = db.update(ScheduleContract.Schedule.TABLE_NAME, values, selection, selectionArgs);
                 break;
@@ -394,30 +234,12 @@ public class ScheduleProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case WEATHER:
-                db.beginTransaction();
-                int returnCount = 0;
-                try {
-                    for (ContentValues value : values) {
-                        normalizeDate(value);
-                        long _id = db.insert(ScheduleContract.WeatherEntry.TABLE_NAME, null, value);
-                        if (_id != -1) {
-                            returnCount++;
-                        }
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
 
             case SCHEDULE:
                 db.beginTransaction();
                 int returnCount1 = 0;
                 try {
                     for (ContentValues value : values) {
-                        normalizeDate(value);
                         long _id = db.insert(ScheduleContract.Schedule.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount1++;
