@@ -125,7 +125,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.scheduleFragment, menu);
+        inflater.inflate(R.menu.schedulefragment, menu);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
+        if (id == R.id.action_update) {
             update();
             return true;
         }
