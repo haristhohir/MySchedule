@@ -44,6 +44,9 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FontsOverride.setDefaultFont(this, "DEFAULT", "fonts/Roboto-Regular.ttf");
+        FontsOverride.setDefaultFont(this, "MONOSPACE", "fonts/Roboto-Regular.ttf");
+        FontsOverride.setDefaultFont(this, "SERIF", "fonts/Roboto-Regular.ttf");
+        FontsOverride.setDefaultFont(this, "SANS_SERIF", "fonts/Roboto-Regular.ttf");
         setContentView(R.layout.activity_main);
         if(findViewById(R.id.schedule_detail_container)!=null){
             mTwoPane = true;
