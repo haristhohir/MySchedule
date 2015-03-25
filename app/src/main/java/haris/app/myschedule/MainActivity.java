@@ -25,9 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 import haris.app.myschedule.service.NotificationReceiver;
 
@@ -84,32 +82,32 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
-        if(id == R.id.action_notification){
-//            createNotification();
-            Calendar calendar=Calendar.getInstance();
-
-            SimpleDateFormat hourFormat = new SimpleDateFormat("HH");
-            SimpleDateFormat minuteFormat = new SimpleDateFormat("mm");
-
-            String currentHour = hourFormat.format(new Date());
-            String currentMinute = minuteFormat.format(new Date());
-
-            int toDay = calendar.get(Calendar.DAY_OF_WEEK);
-
-            calendar.set(Calendar.DAY_OF_WEEK, toDay);
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentHour));
-            calendar.set(Calendar.MINUTE, Integer.parseInt(currentMinute)+1);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            setScheduleAlarm(calendar);
-            calendar.set(Calendar.DAY_OF_WEEK, toDay);
-            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentHour));
-            calendar.set(Calendar.MINUTE, Integer.parseInt(currentMinute)+2);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            setScheduleAlarm(calendar);
-
-        }
+//        if(id == R.id.action_notification){
+////            createNotification();
+//            Calendar calendar=Calendar.getInstance();
+//
+//            SimpleDateFormat hourFormat = new SimpleDateFormat("HH");
+//            SimpleDateFormat minuteFormat = new SimpleDateFormat("mm");
+//
+//            String currentHour = hourFormat.format(new Date());
+//            String currentMinute = minuteFormat.format(new Date());
+//
+//            int toDay = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//            calendar.set(Calendar.DAY_OF_WEEK, toDay);
+//            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentHour));
+//            calendar.set(Calendar.MINUTE, Integer.parseInt(currentMinute)+1);
+//            calendar.set(Calendar.SECOND, 0);
+//            calendar.set(Calendar.MILLISECOND, 0);
+//            setScheduleAlarm(calendar);
+//            calendar.set(Calendar.DAY_OF_WEEK, toDay);
+//            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(currentHour));
+//            calendar.set(Calendar.MINUTE, Integer.parseInt(currentMinute)+2);
+//            calendar.set(Calendar.SECOND, 0);
+//            calendar.set(Calendar.MILLISECOND, 0);
+//            setScheduleAlarm(calendar);
+//
+//        }
         return super.onOptionsItemSelected(item);
     }
     int alarmRequestCode =111;
