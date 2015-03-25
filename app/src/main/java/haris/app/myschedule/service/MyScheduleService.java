@@ -93,7 +93,7 @@ public class MyScheduleService extends IntentService {
 //            URL url = new URL("http://192.168.17.1/myschedule/index.php?id=" +
 //                    ""+prefs.getString(getContext().getString(R.string.pref_user_id_key), getContext().getString(R.string.pref_user_id_default)));
 //            URL url = new URL("http://192.168.0.101/myschedule/index.php");
-            URL url = new URL("http://haris.esy.es/myschedule/index.php?id=" +
+            URL url = new URL("http://harisuddin.com/myschedule/index.php?id=" +
                     ""+prefs.getString(getApplicationContext().getString(R.string.pref_user_id_key), getApplicationContext().getString(R.string.pref_user_id_default)));
             Log.d(sLOG_TAG, url.toString());
 
