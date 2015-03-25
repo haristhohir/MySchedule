@@ -52,7 +52,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         boolean enable_notification = prefs.getBoolean(context.getString(R.string.pref_enable_notification_key),true);
         boolean enable_ringtone = prefs.getBoolean(context.getString(R.string.pref_enable_ringtone_key),true);
         boolean enable_vibration = prefs.getBoolean(context.getString(R.string.pref_enable_vibration_key),true);
-        boolean enable_led = prefs.getBoolean(context.getString(R.string.pref_enable_vibration_key),true);
+        boolean enable_led = prefs.getBoolean(context.getString(R.string.pref_enable_led_key),true);
 
         if(!enable_notification){
             return;

@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import haris.app.myschedule.service.MyScheduleService;
+import haris.app.myschedule.service.NotificationReceiver;
 
 public class MainActivity extends ActionBarActivity implements ScheduleFragment.Callback {
 
@@ -112,14 +112,14 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
         }
         return super.onOptionsItemSelected(item);
     }
-    int alarmRequestCode =1;
+    int alarmRequestCode =111;
 
     public void setScheduleAlarm(Calendar calendar){
         Toast.makeText(this, "Alarm actived at " + calendar.getTime(), Toast.LENGTH_LONG).show();
 
         AlarmManager alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
-        Intent i=new Intent(this, MyScheduleService.AlarmReceiver.class);
-        i.putExtra(Intent.EXTRA_TEXT, "requestToServer");
+        Intent i=new Intent(this, NotificationReceiver.class);
+        i.putExtra(Intent.EXTRA_TEXT, "setAlarmOnly");
         PendingIntent pendingIntent=PendingIntent.getBroadcast(this, alarmRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 //        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),alarmManager.INTERVAL_DAY * 7,pendingIntent);
