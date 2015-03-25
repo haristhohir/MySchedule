@@ -61,8 +61,8 @@
             style="@style/ForecastListStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:choiceMode="none"/>
     </LinearLayout>
 </FrameLayout>
