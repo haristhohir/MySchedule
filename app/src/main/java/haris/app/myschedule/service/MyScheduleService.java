@@ -55,7 +55,7 @@ import haris.app.myschedule.data.ScheduleDbHelper;
 
 
 public class MyScheduleService extends IntentService {
-//    private ArrayAdapter<String> mForecastAdapter;
+    //    private ArrayAdapter<String> mForecastAdapter;
 //    public static final String LOCATION_QUERY_EXTRA = "lqe";
     private final String LOG_TAG = MyScheduleService.class.getSimpleName();
     private  static final String sLOG_TAG = MyScheduleService.class.getSimpleName();
@@ -73,6 +73,11 @@ public class MyScheduleService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         context = getApplicationContext();
+        if(intent.getStringExtra(Intent.EXTRA_TEXT) != "requestToServer"){
+            setAlarmNotification();
+            return;
+        }
+
         Log.d(sLOG_TAG, "Starting sync");
 // These two need to be declared outside the try/catch
 // so that they can be closed in the finally block.
@@ -92,10 +97,9 @@ public class MyScheduleService extends IntentService {
                     ""+prefs.getString(getApplicationContext().getString(R.string.pref_user_id_key), getApplicationContext().getString(R.string.pref_user_id_default)));
             Log.d(sLOG_TAG, url.toString());
 
-
-
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
+            Log.d(sLOG_TAG, "Connecting...");
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
@@ -139,6 +143,7 @@ public class MyScheduleService extends IntentService {
 
 
     public static void setAlarmNotification(){
+        cancelAlarm();
         Log.d(sLOG_TAG, "Set Alarm Notification");
         ScheduleDbHelper mOpenHelper = new ScheduleDbHelper(context);
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -159,6 +164,7 @@ public class MyScheduleService extends IntentService {
                         context.getString(R.string.pref_notification_time_default));
 
                 int before = Integer.parseInt(timeBefore);
+                Log.d(sLOG_TAG, "ALARM BEFORE "+before);
                 if((intMinute-before) < 0){
                     intHour--;
                     intMinute = 60+(intMinute-before);
@@ -176,13 +182,6 @@ public class MyScheduleService extends IntentService {
                 calendar.set(Calendar.MINUTE, intMinute);
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
-//                if(calendar.getTime().before(Calendar.getInstance().getTime())){
-//                    Log.d(sLOG_TAG, " Before "+calendar.getTime().before(Calendar.getInstance().getTime()));
-//                    Log.d(sLOG_TAG, "TimeInMillis Before "+calendar.DATE);
-//                    calendar.add(Calendar.DATE, 7);
-//                    Log.d(sLOG_TAG, "New TimeInMillis "+calendar.DATE);
-//                }
-
                 setScheduleAlarm(calendar);
             }while (cursor.moveToNext());
         }
@@ -192,36 +191,45 @@ public class MyScheduleService extends IntentService {
     static int alarmRequestCode =1;
 
     public static void setScheduleAlarm(Calendar calendar){
-        Log.d(sLOG_TAG, "Calendar hour : "+calendar.getTime().getHours()+", DATE : "+calendar.DATE);
 
-        if(isPassed(calendar)){
-            calendar.add(Calendar.DAY_OF_WEEK, 7);
+        Log.d(sLOG_TAG, "Calendar hour : "+calendar.getTime().getHours()+", DATE : "+calendar.getTime().getDate());
+        Log.d(sLOG_TAG, "SET ALARM AT 1 "+calendar.getTime());
+        boolean passed = false;
+        if(calendar.getTime().before(Calendar.getInstance().getTime())){
+            passed = true;
+            calendar.add(Calendar.DATE, 7);
             Log.d(sLOG_TAG, "TIME PASSED!!! at "+ calendar.getTime() );
         }
+        Log.d(sLOG_TAG, "SET ALARM AT 2 "+calendar.getTime());
         AlarmManager alarmManager=(AlarmManager)context.getSystemService(context.ALARM_SERVICE);
         Intent i=new Intent(context, NotificationReceiver.class);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(context, alarmRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),alarmManager.INTERVAL_DAY * 7,pendingIntent);
         alarmRequestCode++;
+        if(passed){
+            calendar.add(Calendar.DATE, -7);
+            Log.d(sLOG_TAG, "TIME PASSED!!! change back "+ calendar.getTime() );
+        }
     }
 
     public static boolean isPassed(Calendar calendar){
-        Log.d(sLOG_TAG, "Input day " + calendar.getTime().getDay());
-        Log.d(sLOG_TAG, "Current day " + Calendar.getInstance().getTime().getDay());
+        Log.d(sLOG_TAG, "Input day " + calendar.getTime());
+        Log.d(sLOG_TAG, "Current day " + Calendar.getInstance().getTime());
 
-        if(calendar.getTime().getDay() < Calendar.getInstance().getTime().getDay()){
+        if(calendar.getTime().getDate() < Calendar.getInstance().getTime().getDate()){
+            Log.d(sLOG_TAG, "Compare date "+calendar.getTime().getDate()+" with "+Calendar.getInstance().getTime().getDate());
+            return true;
+        }else if(calendar.getTime().getDate() == Calendar.getInstance().getTime().getDate()){
             if(calendar.getTime().getHours() < Calendar.getInstance().getTime().getHours()){
+                return true;
+            }else if(calendar.getTime().getHours() == Calendar.getInstance().getTime().getHours()){
                 if(calendar.getTime().getMinutes() < Calendar.getInstance().getTime().getMinutes()){
                     return true;
-                }else {
-                    return false;
                 }
-            }else{
-                return false;
             }
         }
-            return false;
+        return false;
     }
 
     private static void cancelAlarm(){
@@ -325,7 +333,7 @@ public class MyScheduleService extends IntentService {
             Log.d(sLOG_TAG, "MySchedule Service Complete. " + cVVector.size() + " Inserted");
 
             db.close();
-            cancelAlarm();
+
             setAlarmNotification();
             nextLesson();
 
@@ -411,6 +419,9 @@ public class MyScheduleService extends IntentService {
         public void onReceive(Context context, Intent intent) {
             Log.d(sLOG_TAG, "Receive Broadcast...");
             Intent sendIntent = new Intent(context, MyScheduleService.class);
+            Log.d(sLOG_TAG, "INTENT  - Text extra update data "+intent.getStringExtra(Intent.EXTRA_TEXT));
+
+            sendIntent.putExtra(Intent.EXTRA_TEXT, intent.getStringExtra(Intent.EXTRA_TEXT));
 //            sendIntent.putExtra(MyScheduleService.LOCATION_QUERY_EXTRA, intent.getStringExtra(MyScheduleService.LOCATION_QUERY_EXTRA));
             context.startService(sendIntent);
             Log.d(sLOG_TAG, "Receive Broadcast.......");

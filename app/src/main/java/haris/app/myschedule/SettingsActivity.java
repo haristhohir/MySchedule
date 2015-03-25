@@ -39,6 +39,8 @@ import haris.app.myschedule.service.MyScheduleService;
  */
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener {
+    private  static final String sLOG_TAG = SettingsActivity.class.getSimpleName();
+    private static Context context;
 
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -49,6 +51,7 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
         // Add 'general' preferences, defined in the XML file
         addPreferencesFromResource(R.xml.pref_general);
 
@@ -56,8 +59,11 @@ public class SettingsActivity extends PreferenceActivity
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_user_id_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_notification_time_key)));
-//        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
-//        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
+//        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_enable_notification_key)));
+//        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_enable_ringtone_key)));
+//        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_enable_vibration_key)));
+
+
     }
 
     /**
@@ -89,24 +95,26 @@ public class SettingsActivity extends PreferenceActivity
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
+            update(false);
         } else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
+            update(true);
         }
-
-        update();
-//        MyScheduleSyncAdapter.syncImmediately(this);
         return true;
     }
 
-    public void update(){
+    public void update(boolean serverRequest){
         Intent alarmIntent = new Intent(getApplicationContext(), MyScheduleService.AlarmReceiver.class);
+        if(serverRequest){
+            alarmIntent.putExtra(Intent.EXTRA_TEXT, "requestToServer");
+        }else {
+            alarmIntent.putExtra(Intent.EXTRA_TEXT, "setAlarmOnly");
+        }
 
         //Wrap in a pending intent which only fires once.
         PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
-
         AlarmManager am=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-
         //Set the AlarmManager to wake up the system.
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
     }

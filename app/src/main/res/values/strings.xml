@@ -20,53 +20,12 @@
     <string name="title_activity_detail">Details</string>
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Label for the location preference [CHAR LIMIT=30] -->
-    <string name="pref_location_label">Location</string>
-
-    <!-- Key name for storing location in SharedPreferences [CHAR LIMIT=NONE] -->
-    <string name="pref_location_key" translatable="false">location</string>
-
-    <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
-    <string name="pref_location_default" translatable="false">94043</string>
-
-    <!-- Label for the temperature units preference [CHAR LIMIT=30] -->
-    <string name="pref_units_label">Temperature Units</string>
-
-    <!-- Label for metric option in temperature unit preference [CHAR LIMIT=25] -->
-    <string name="pref_units_label_metric">Metric</string>
-
-    <!-- Label for imperial option in temperature unit preference [CHAR LIMIT=25] -->
-    <string name="pref_units_label_imperial">Imperial</string>
-
-    <!-- Key name for temperature unit preference in SharedPreferences [CHAR LIMIT=NONE] -->
-    <string name="pref_units_key" translatable="false">units</string>
-
-    <!-- Value in SharedPreferences for metric temperature unit option [CHAR LIMIT=NONE] -->
-    <string name="pref_units_metric" translatable="false">metric</string>
-
-    <!-- Value in SharedPreferences for imperial temperature unit option [CHAR LIMIT=NONE] -->
-    <string name="pref_units_imperial" translatable="false">imperial</string>
-
 
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="format_full_friendly_date">
         <xliff:g id="day">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g>
     </string>
-
-    <!-- Strings for formatting weather-related data -->
-    <!-- Temperature format [CHAR LIMIT=5] -->
-    <string name="format_temperature"><xliff:g id="temp">%1.0f</xliff:g>\u00B0</string>
-    <!-- Windspeed formats -->
-    <!-- Wind in mph [CHAR LIMIT=25] -->
-    <string name="format_wind_mph">Wind: <xliff:g id="speed">%1$1.0f</xliff:g> mph <xliff:g id="direction">%2$s</xliff:g></string>
-    <!-- Wind in kph [CHAR LIMIT=25] -->
-    <string name="format_wind_kmh">Wind: <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g></string>
-    <!-- Pressure format CHAR LIMIT=25] -->
-    <string name="format_pressure">Pressure: <xliff:g id="pressure">%1.0f</xliff:g> hPa</string>
-    <!-- Humidity format CHAR LIMIT=25]-->
-    <string name="format_humidity">Humidity: <xliff:g id="humidity">%1.0f</xliff:g> %%</string>
-
 
     <string name="sync_account_type">haris.app.myschedule</string>
     <string name="content_authority">haris.app.myschedule.sync.MyScheduleSyncAdapter</string>
@@ -87,8 +46,6 @@
     <string name="pref_enable_notifications_false">Not Enabled</string>
     <string name="pref_enable_notifications_default" translatable="false">true</string>
 
-
-
     <string name="pref_user_id_label">User ID</string>
     <string name="pref_user_id_key" translatable="false">user_id</string>
     <string name="pref_user_id_default" translatable="false">125150200111103</string>
@@ -99,13 +56,11 @@
     <string name="pref_enable_notification_true">Enabled</string>
     <string name="pref_enable_notification_false">Disabled</string>
 
-
     <string name="pref_enable_ringtone_label">Ringtone</string>
     <string name="pref_enable_ringtone_key" translatable="false">ringtone</string>
     <string name="pref_enable_ringtone_default" translatable="false">true</string>
     <string name="pref_enable_ringtone_true">Enabled</string>
     <string name="pref_enable_ringtone_false">Disabled</string>
-
 
     <string name="pref_enable_vibration_label">Vibration</string>
     <string name="pref_enable_vibration_key" translatable="false">vibration</string>
@@ -113,10 +68,17 @@
     <string name="pref_enable_vibration_true">Enabled</string>
     <string name="pref_enable_vibration_false">Disabled</string>
 
+    <string name="pref_enable_led_label">LED</string>
+    <string name="pref_enable_led_key" translatable="false">led</string>
+    <string name="pref_enable_led_default" translatable="false">true</string>
+    <string name="pref_enable_led_true">Enabled</string>
+    <string name="pref_enable_led_false">Disabled</string>
+
+
 
     <string name="pref_notification_time_label">Notification Time</string>
     <string name="pref_notification_time_key" translatable="false">notification_time</string>
-    <string name="pref_notification_time_default" translatable="false">30</string>
+    <string name="pref_notification_time_default" translatable="false">@string/pref_notification_time_before_30</string>
 
     <string name="pref_notification_time_before_60_label" translatable="false">Before 60 minutes</string>
     <string name="pref_notification_time_before_45_label" translatable="false">Before 45 minutes</string>
@@ -131,7 +93,6 @@
     <string name="pref_notification_time_before_15" translatable="false">15</string>
     <string name="pref_notification_time_before_10" translatable="false">10</string>
     <string name="pref_notification_time_before_5" translatable="false">5</string>
-
 
     <string name="expanded">I\'m the expanded notification.\nCollapse me!</string>
     <string name="collapsed">I\'m the collapsed notification.\nCreated at: %s</string>

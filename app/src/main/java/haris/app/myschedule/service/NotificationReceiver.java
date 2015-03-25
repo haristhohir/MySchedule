@@ -6,9 +6,12 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -45,6 +48,16 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     private void createNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean enable_notification = prefs.getBoolean(context.getString(R.string.pref_enable_notification_key),true);
+        boolean enable_ringtone = prefs.getBoolean(context.getString(R.string.pref_enable_ringtone_key),true);
+        boolean enable_vibration = prefs.getBoolean(context.getString(R.string.pref_enable_vibration_key),true);
+        boolean enable_led = prefs.getBoolean(context.getString(R.string.pref_enable_vibration_key),true);
+
+        if(!enable_notification){
+            return;
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         String currentDateandTime = sdf.format(new Date());
 
@@ -57,12 +70,20 @@ public class NotificationReceiver extends BroadcastReceiver {
         builder.setTicker("Custom Notification");
         builder.setSmallIcon(R.drawable.ic_schedule_white);
         builder.setAutoCancel(true);
-        builder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
-        builder.setVibrate(new long[]{1000, 1000, 500, 0, 1000, 0, 500});
+
+        if(enable_led){
+            builder.setLights(Color.BLUE, 333, 333);
+        }
+        if(enable_ringtone){
+            builder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+        }
+        if(enable_vibration){
+            builder.setVibrate(new long[]{1000, 1000, 500, 0, 1000, 0, 500});
+        }
+
         Notification notification = builder.build();
 
         RemoteViews contentView = new RemoteViews(context.getPackageName(), R.layout.notification);
-
 
         String currentTime = sdf.format(new Date());
         Calendar calendar = Calendar.getInstance();
@@ -117,7 +138,6 @@ public class NotificationReceiver extends BroadcastReceiver {
 //                                push, PendingIntent.FLAG_CANCEL_CURRENT);
                         builder
                                 .setContent(expandedView)
-                                .setVibrate(new long[]{1000, 1000, 500})
                                 .setFullScreenIntent(intent, true);
                     }
                     notification = builder.build();

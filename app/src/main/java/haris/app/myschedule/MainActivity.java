@@ -119,6 +119,7 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
 
         AlarmManager alarmManager=(AlarmManager)getSystemService(ALARM_SERVICE);
         Intent i=new Intent(this, MyScheduleService.AlarmReceiver.class);
+        i.putExtra(Intent.EXTRA_TEXT, "requestToServer");
         PendingIntent pendingIntent=PendingIntent.getBroadcast(this, alarmRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 //        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),alarmManager.INTERVAL_DAY * 7,pendingIntent);
@@ -149,4 +150,6 @@ public class MainActivity extends ActionBarActivity implements ScheduleFragment.
             startActivity(intent);
         }
     }
+
+
 }

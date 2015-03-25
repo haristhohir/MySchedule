@@ -32,6 +32,13 @@
         android:summaryOn="@string/pref_enable_vibration_true"
         android:defaultValue="@string/pref_enable_vibration_default" />
 
+    <CheckBoxPreference
+        android:title="@string/pref_enable_led_label"
+        android:key="@string/pref_enable_led_key"
+        android:summaryOff="@string/pref_enable_led_false"
+        android:summaryOn="@string/pref_enable_led_true"
+        android:defaultValue="@string/pref_enable_led_default" />
+
     <ListPreference
         android:title="@string/pref_notification_time_label"
         android:key="@string/pref_notification_time_key"
