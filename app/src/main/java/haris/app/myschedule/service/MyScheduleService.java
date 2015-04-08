@@ -73,7 +73,10 @@ public class MyScheduleService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         context = getApplicationContext();
-        if(intent.getStringExtra(Intent.EXTRA_TEXT) != "requestToServer"){
+        Log.d(sLOG_TAG, "INTENT 2 - Text extra update data "+intent.getStringExtra(Intent.EXTRA_TEXT));
+        String request = intent.getStringExtra(Intent.EXTRA_TEXT);
+        Log.d(sLOG_TAG, "request "+request);
+        if(request == "setAlarmOnly"){
             setAlarmNotification();
             return;
         }
@@ -84,7 +87,7 @@ public class MyScheduleService extends IntentService {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 // Will contain the raw JSON response as a string.
-        String forecastJsonStr = null;
+        String scheduleJsonStr = null;
         String format = "json";
         String units = "metric";
         int numDays = 14;
@@ -116,9 +119,9 @@ public class MyScheduleService extends IntentService {
 
                 return;
             }
-            forecastJsonStr = buffer.toString();
+            scheduleJsonStr = buffer.toString();
 
-            getDataJson(forecastJsonStr);
+            getDataJson(scheduleJsonStr);
 
         } catch (IOException e) {
             Log.e(sLOG_TAG, "Error ", e);
@@ -420,8 +423,8 @@ public class MyScheduleService extends IntentService {
             Log.d(sLOG_TAG, "Receive Broadcast...");
             Intent sendIntent = new Intent(context, MyScheduleService.class);
             Log.d(sLOG_TAG, "INTENT  - Text extra update data "+intent.getStringExtra(Intent.EXTRA_TEXT));
-
-            sendIntent.putExtra(Intent.EXTRA_TEXT, intent.getStringExtra(Intent.EXTRA_TEXT));
+            String request = intent.getStringExtra(Intent.EXTRA_TEXT);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, request);
 //            sendIntent.putExtra(MyScheduleService.LOCATION_QUERY_EXTRA, intent.getStringExtra(MyScheduleService.LOCATION_QUERY_EXTRA));
             context.startService(sendIntent);
             Log.d(sLOG_TAG, "Receive Broadcast.......");

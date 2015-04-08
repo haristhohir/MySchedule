@@ -376,6 +376,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
     public void update(){
         Log.d(LOG_TAG, "Update...");
         Intent alarmIntent = new Intent(getActivity(), MyScheduleService.AlarmReceiver.class);
+        alarmIntent.putExtra(Intent.EXTRA_TEXT, "requestToServer");
 
         //Wrap in a pending intent which only fires once.
         PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
