@@ -16,9 +16,6 @@
 package haris.app.myschedule;
 
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -136,6 +133,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         int id = item.getItemId();
         if (id == R.id.action_update) {
             update();
+            MyScheduleService.nextLesson(getActivity());
             return true;
         }
 
@@ -375,15 +373,27 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
 
     public void update(){
         Log.d(LOG_TAG, "Update...");
-        Intent alarmIntent = new Intent(getActivity(), MyScheduleService.AlarmReceiver.class);
-        alarmIntent.putExtra(Intent.EXTRA_TEXT, "requestToServer");
+//        Intent alarmIntent = new Intent(getActivity(), MyScheduleService.AlarmReceiver.class);
+//        alarmIntent.putExtra(Intent.EXTRA_TEXT, "requestToServer");
+//
+//        //Wrap in a pending intent which only fires once.
+//        PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
+//
+//        AlarmManager am=(AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
+//
+//        //Set the AlarmManager to wake up the system.
+//        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
+//
 
-        //Wrap in a pending intent which only fires once.
-        PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
+        String request = "requestToServer";
+        Intent sendIntent = new Intent(getActivity(), MyScheduleService.class);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, request);
+        Log.d(LOG_TAG, "INTENT  - Text extra update data " + request);
+//        String request = intent.getStringExtra(Intent.EXTRA_TEXT);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, request);
+//            sendIntent.putExtra(MyScheduleService.LOCATION_QUERY_EXTRA, intent.getStringExtra(MyScheduleService.LOCATION_QUERY_EXTRA));
+        getActivity().startService(sendIntent);
 
-        AlarmManager am=(AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
 
-        //Set the AlarmManager to wake up the system.
-        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
     }
 }

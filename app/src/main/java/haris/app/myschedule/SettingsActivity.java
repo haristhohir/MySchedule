@@ -26,6 +26,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import haris.app.myschedule.service.MyScheduleService;
 
@@ -86,6 +87,7 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
+        Log.d(sLOG_TAG, stringValue);
 
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
@@ -96,7 +98,7 @@ public class SettingsActivity extends PreferenceActivity
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
             update(false);
-        } else {
+        } else if(stringValue.length()>3){
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
             update(true);
@@ -106,10 +108,13 @@ public class SettingsActivity extends PreferenceActivity
 
     public void update(boolean serverRequest){
         Intent alarmIntent = new Intent(getApplicationContext(), MyScheduleService.AlarmReceiver.class);
+        String request;
         if(serverRequest){
             alarmIntent.putExtra(Intent.EXTRA_TEXT, "requestToServer");
+            request =  "requestToServer";
         }else {
             alarmIntent.putExtra(Intent.EXTRA_TEXT, "setAlarmOnly");
+            request = "setAlarmOnly";
         }
 
         //Wrap in a pending intent which only fires once.
@@ -117,5 +122,16 @@ public class SettingsActivity extends PreferenceActivity
         AlarmManager am=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         //Set the AlarmManager to wake up the system.
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
+
+
+
+//        Intent sendIntent = new Intent(context, MyScheduleService.class);
+//        sendIntent.putExtra(Intent.EXTRA_TEXT, request);
+//        Log.d(sLOG_TAG, "INTENT  - Text extra update data " + request);
+////        String request = intent.getStringExtra(Intent.EXTRA_TEXT);
+//        sendIntent.putExtra(Intent.EXTRA_TEXT, request);
+////            sendIntent.putExtra(MyScheduleService.LOCATION_QUERY_EXTRA, intent.getStringExtra(MyScheduleService.LOCATION_QUERY_EXTRA));
+//        context.startService(sendIntent);
+
     }
 }

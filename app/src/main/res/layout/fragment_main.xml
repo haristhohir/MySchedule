@@ -63,6 +63,7 @@
             android:layout_height="match_parent"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:choiceMode="none"/>
+            android:choiceMode="singleChoice"
+            android:divider="@null"/>
     </LinearLayout>
 </FrameLayout>

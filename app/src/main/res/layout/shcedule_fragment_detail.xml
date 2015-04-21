@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/black"
-        android:text="Day"
+        android:text=""
         android:id="@+id/day_textView"
         android:layout_gravity="center_horizontal" />
 

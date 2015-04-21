@@ -54,7 +54,7 @@ import haris.app.myschedule.data.ScheduleContract;
 import haris.app.myschedule.data.ScheduleDbHelper;
 
 
-public class MyScheduleService extends IntentService {
+public class MyScheduleService extends IntentService{
     //    private ArrayAdapter<String> mForecastAdapter;
 //    public static final String LOCATION_QUERY_EXTRA = "lqe";
     private final String LOG_TAG = MyScheduleService.class.getSimpleName();
@@ -81,16 +81,11 @@ public class MyScheduleService extends IntentService {
             return;
         }
 
+
         Log.d(sLOG_TAG, "Starting sync");
-// These two need to be declared outside the try/catch
-// so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
-// Will contain the raw JSON response as a string.
         String scheduleJsonStr = null;
-        String format = "json";
-        String units = "metric";
-        int numDays = 14;
         try {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 //            URL url = new URL("http://192.168.17.1/myschedule/index.php?id=" +
@@ -103,8 +98,11 @@ public class MyScheduleService extends IntentService {
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             Log.d(sLOG_TAG, "Connecting...");
-            urlConnection.connect();
 
+
+
+            urlConnection.connect();
+            Log.d(sLOG_TAG, "Connected");
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
@@ -144,7 +142,6 @@ public class MyScheduleService extends IntentService {
         return;
     }
 
-
     public static void setAlarmNotification(){
         cancelAlarm();
         Log.d(sLOG_TAG, "Set Alarm Notification");
@@ -177,8 +174,6 @@ public class MyScheduleService extends IntentService {
 
                 Log.d(sLOG_TAG, "DayId " + cursor.getString(ScheduleFragment.COL_SCHEDULE_DAY_ID) +
                         " startHour "+ intHour + " startMinute "+intMinute);
-
-
 
                 calendar.set(Calendar.DAY_OF_WEEK, cursor.getInt(ScheduleFragment.COL_SCHEDULE_DAY_ID));
                 calendar.set(Calendar.HOUR_OF_DAY, intHour);
@@ -338,7 +333,7 @@ public class MyScheduleService extends IntentService {
             db.close();
 
             setAlarmNotification();
-            nextLesson();
+            nextLesson(context);
 
         }catch(JSONException e) {
             Log.e(sLOG_TAG, e.getMessage(), e);
@@ -346,7 +341,7 @@ public class MyScheduleService extends IntentService {
         }
     }
 
-    public static void nextLesson(){
+    public static void nextLesson(Context context){
         LayoutInflater mInflater = LayoutInflater.from(context);
         View rootView = mInflater.inflate(R.layout.fragment_main, null);
         lessonName = (TextView)rootView.findViewById(R.id.lesson_textView);
@@ -425,7 +420,6 @@ public class MyScheduleService extends IntentService {
             Log.d(sLOG_TAG, "INTENT  - Text extra update data "+intent.getStringExtra(Intent.EXTRA_TEXT));
             String request = intent.getStringExtra(Intent.EXTRA_TEXT);
             sendIntent.putExtra(Intent.EXTRA_TEXT, request);
-//            sendIntent.putExtra(MyScheduleService.LOCATION_QUERY_EXTRA, intent.getStringExtra(MyScheduleService.LOCATION_QUERY_EXTRA));
             context.startService(sendIntent);
             Log.d(sLOG_TAG, "Receive Broadcast.......");
 
