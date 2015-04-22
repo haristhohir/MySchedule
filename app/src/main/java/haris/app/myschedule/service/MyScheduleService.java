@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package haris.app.myschedule.service;
 
 import android.app.AlarmManager;
@@ -76,11 +60,11 @@ public class MyScheduleService extends IntentService{
         Log.d(sLOG_TAG, "INTENT 2 - Text extra update data "+intent.getStringExtra(Intent.EXTRA_TEXT));
         String request = intent.getStringExtra(Intent.EXTRA_TEXT);
         Log.d(sLOG_TAG, "request "+request);
-        if(request == "setAlarmOnly"){
+        if(request.equals("setAlarmOnly")){
+            Log.d(sLOG_TAG, "set Alarm");
             setAlarmNotification();
             return;
         }
-
 
         Log.d(sLOG_TAG, "Starting sync");
         HttpURLConnection urlConnection = null;
@@ -91,8 +75,12 @@ public class MyScheduleService extends IntentService{
 //            URL url = new URL("http://192.168.17.1/myschedule/index.php?id=" +
 //                    ""+prefs.getString(getContext().getString(R.string.pref_user_id_key), getContext().getString(R.string.pref_user_id_default)));
 //            URL url = new URL("http://192.168.0.101/myschedule/index.php");
-            URL url = new URL("http://harisuddin.com/myschedule/index.php?id=" +
-                    ""+prefs.getString(getApplicationContext().getString(R.string.pref_user_id_key), getApplicationContext().getString(R.string.pref_user_id_default)));
+//            URL url = new URL("http://harisuddin.com/myschedule/index.php?id=" +
+//                    ""+prefs.getString(getApplicationContext().getString(R.string.pref_user_id_key), getApplicationContext().getString(R.string.pref_user_id_default)));
+            URL url = new URL("http://api.harisuddin.com/mySchedule/user/id/"
+                    +prefs.getString(getApplicationContext().getString(R.string.pref_user_id_key),
+                    getApplicationContext().getString(R.string.pref_user_id_default))+"/format/json");
+
             Log.d(sLOG_TAG, url.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -155,7 +143,7 @@ public class MyScheduleService extends IntentService{
             do {
                 String hourMinute = cursor.getString(ScheduleFragment.COL_SCHEDULE_TIME_START);
                 String hour = hourMinute.substring(0,2);
-                String minute = hourMinute.substring(3);
+                String minute = hourMinute.substring(3,5);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
                 int intMinute = Integer.parseInt(minute);
@@ -291,6 +279,9 @@ public class MyScheduleService extends IntentService{
                 String lessonFull = lessonSchedule.getString("lesson_name_full");
                 String lessonShort = lessonSchedule.getString("lesson_name_short");
 
+                timeStart = timeStart.substring(0,5);
+                timeEnd = timeEnd.substring(0,5);
+
                 Log.d(sLOG_TAG, "id schedule : " + id +
                                 " day : " + day +
                                 " day_id : " + day_id +
@@ -343,6 +334,7 @@ public class MyScheduleService extends IntentService{
 
     public static void nextLesson(Context context){
         LayoutInflater mInflater = LayoutInflater.from(context);
+
         View rootView = mInflater.inflate(R.layout.fragment_main, null);
         lessonName = (TextView)rootView.findViewById(R.id.lesson_textView);
         time = (TextView)rootView.findViewById(R.id.time_textView);

@@ -100,7 +100,6 @@ public class ScheduleProvider extends ContentProvider {
         // and query the database accordingly.
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
-            // "weather/*/*"
 
             case SCHEDULE: {
                 retCursor = mOpenHelper.getReadableDatabase().query(

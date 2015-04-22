@@ -20,7 +20,7 @@
         <item name="logo">@drawable/ic_schedule_white</item>
     </style>
 
-    <style name="ForecastListStyle">
+    <style name="ScheduleListStyle">
 
     </style>
 
