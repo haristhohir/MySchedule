@@ -10,10 +10,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -26,9 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Vector;
 
 import haris.app.myschedule.MainActivity;
@@ -48,12 +46,13 @@ public class MyScheduleService extends IntentService{
     private static TextView time;
     private static TextView room;
     private static TextView nextLabel;
+    private static String ID = "";
 
     public MyScheduleService() {
         super("MySchedule");
     }
     static Context context;
-
+    private ResultReceiver resultReceiver;
     @Override
     protected void onHandleIntent(Intent intent) {
         context = getApplicationContext();
@@ -65,6 +64,17 @@ public class MyScheduleService extends IntentService{
             setAlarmNotification();
             return;
         }
+
+        resultReceiver = intent.getParcelableExtra("result");
+
+        Bundle result = new Bundle();
+        result.putString("result", "loading...");
+        try {
+            resultReceiver.send(201, result);
+        }catch (NullPointerException e){
+            Log.e(LOG_TAG, "Null Pointer Exception!");
+        }
+
 
         Log.d(sLOG_TAG, "Starting sync");
         HttpURLConnection urlConnection = null;
@@ -88,9 +98,22 @@ public class MyScheduleService extends IntentService{
             Log.d(sLOG_TAG, "Connecting...");
 
 
+            result.putString("result", "connecting...");
+            try {
+                resultReceiver.send(201, result);
+            }catch (NullPointerException e){
+                Log.e(LOG_TAG, "Null Pointer Exception!");
+            }
 
             urlConnection.connect();
             Log.d(sLOG_TAG, "Connected");
+
+            result.putString("result", "loading...");
+            try {
+                resultReceiver.send(201, result);
+            }catch (NullPointerException e){
+                Log.e(LOG_TAG, "Null Pointer Exception!");
+            }
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
@@ -108,6 +131,22 @@ public class MyScheduleService extends IntentService{
             scheduleJsonStr = buffer.toString();
 
             getDataJson(scheduleJsonStr);
+
+            if(ID.equals("404")){
+                result.putString("result", "ID Not Found!");
+                try {
+                    resultReceiver.send(404, result);
+                }catch (NullPointerException e){
+                    Log.e(LOG_TAG, "Null Pointer Exception!");
+                }
+            }else {
+                result.putString("result", "data updated!");
+                try {
+                    resultReceiver.send(200, result);
+                }catch (NullPointerException e){
+                    Log.e(LOG_TAG, "Null Pointer Exception!");
+                }
+            }
 
         } catch (IOException e) {
             Log.e(sLOG_TAG, "Error ", e);
@@ -248,6 +287,8 @@ public class MyScheduleService extends IntentService{
 
             JSONArray scheduleArray = scheduleJson.getJSONArray("schedule");
 
+            ID = user_id;
+
             Log.d(sLOG_TAG, "user id : " + user_id + " name : " + name + " nick name : " + nick_name + " email : " + email);
 
             Vector<ContentValues> cVVector = new Vector<ContentValues>(scheduleArray.length());
@@ -324,7 +365,7 @@ public class MyScheduleService extends IntentService{
             db.close();
 
             setAlarmNotification();
-            nextLesson(context);
+//            nextLesson(context);
 
         }catch(JSONException e) {
             Log.e(sLOG_TAG, e.getMessage(), e);
@@ -332,76 +373,76 @@ public class MyScheduleService extends IntentService{
         }
     }
 
-    public static void nextLesson(Context context){
-        LayoutInflater mInflater = LayoutInflater.from(context);
-
-        View rootView = mInflater.inflate(R.layout.fragment_main, null);
-        lessonName = (TextView)rootView.findViewById(R.id.lesson_textView);
-        time = (TextView)rootView.findViewById(R.id.time_textView);
-        room = (TextView)rootView.findViewById(R.id.room_textView);
-        nextLabel = (TextView)rootView.findViewById(R.id.next_lesson_textView);
-
-
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-
-        String currentTime = sdf.format(new Date());
-        Calendar calendar = Calendar.getInstance();
-        int toDay = calendar.get(Calendar.DAY_OF_WEEK);
-
-        Log.d(sLOG_TAG, "Today is " + toDay);
-        Log.d(sLOG_TAG, "SEKARANG " + currentTime);
-
-        ScheduleDbHelper mOpenHelper = new ScheduleDbHelper(context);
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        Cursor cursor;
-
-        cursor = db.rawQuery("SELECT distinct("+ ScheduleContract.Schedule.COLUMN_DAY+") FROM "+ ScheduleContract.Schedule.TABLE_NAME, null);
-        if(cursor.moveToFirst()){
-            do{
-                Log.d(sLOG_TAG, "DAY "+cursor.getString(0));
-            }while (cursor.moveToNext());
-        }
-
-        Cursor check = db.rawQuery("SELECT * FROM "+ ScheduleContract.Schedule.TABLE_NAME,null);
-        cursor = db.rawQuery("SELECT * FROM "+ ScheduleContract.Schedule.TABLE_NAME+" WHERE day_id = '" + toDay+"' AND time_start > '"+ currentTime +"';",null);
-        if(check.moveToFirst()){
-            while (!cursor.moveToFirst()){
-                if(toDay<7){
-                    toDay++;
-                }else {
-                    toDay = 1;
-                }
-                Log.d(sLOG_TAG, "Change day_id to "+toDay);
-                cursor = db.rawQuery("SELECT * FROM "+ ScheduleContract.Schedule.TABLE_NAME+" WHERE day_id = '" + toDay +"' AND time_start > '"+ "00:00" +"';",null);
-            }
-        }else {
-            nextLabel.setText("USER ID NOT FOUND!");
-            lessonName.setText("");
-            time.setText("");
-            room.setText("");
-        }
-
-        if(cursor.moveToFirst()){
-            nextLabel.setText("Next Lesson");
-            do{
-                Log.d(sLOG_TAG,"LESSON " + cursor.getString(ScheduleFragment.COL_SCHEDULE_LESSON_FULL));
-                lessonName.setText(cursor.getString(ScheduleFragment.COL_SCHEDULE_LESSON_FULL) +
-                        " " + cursor.getString(ScheduleFragment.COL_SCHEDULE_CLASS));
-                time.setText(cursor.getString(ScheduleFragment.COL_SCHEDULE_DAY) +
-                        " at " + cursor.getString(ScheduleFragment.COL_SCHEDULE_TIME_START) +
-                        " until "+cursor.getString(ScheduleFragment.COL_SCHEDULE_TIME_END));
-                room.setText("in " + cursor.getString(ScheduleFragment.COL_SCHEDULE_ROOM));
-                break;
-            }while (cursor.moveToNext());
-        }else{
-            nextLabel.setText("USER ID NOT FOUND!");
-            lessonName.setText("");
-            time.setText("");
-            room.setText("");
-        }
-        db.close();
-    }
+//    public static void nextLesson(Context context){
+//        LayoutInflater mInflater = LayoutInflater.from(context);
+//
+//        View rootView = mInflater.inflate(R.layout.fragment_main, null);
+//        lessonName = (TextView)rootView.findViewById(R.id.lesson_textView);
+//        time = (TextView)rootView.findViewById(R.id.time_textView);
+//        room = (TextView)rootView.findViewById(R.id.room_textView);
+//        nextLabel = (TextView)rootView.findViewById(R.id.next_lesson_textView);
+//
+//
+////        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+//        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+//
+//        String currentTime = sdf.format(new Date());
+//        Calendar calendar = Calendar.getInstance();
+//        int toDay = calendar.get(Calendar.DAY_OF_WEEK);
+//
+//        Log.d(sLOG_TAG, "Today is " + toDay);
+//        Log.d(sLOG_TAG, "SEKARANG " + currentTime);
+//
+//        ScheduleDbHelper mOpenHelper = new ScheduleDbHelper(context);
+//        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+//        Cursor cursor;
+//
+//        cursor = db.rawQuery("SELECT distinct("+ ScheduleContract.Schedule.COLUMN_DAY+") FROM "+ ScheduleContract.Schedule.TABLE_NAME, null);
+//        if(cursor.moveToFirst()){
+//            do{
+//                Log.d(sLOG_TAG, "DAY "+cursor.getString(0));
+//            }while (cursor.moveToNext());
+//        }
+//
+//        Cursor check = db.rawQuery("SELECT * FROM "+ ScheduleContract.Schedule.TABLE_NAME,null);
+//        cursor = db.rawQuery("SELECT * FROM "+ ScheduleContract.Schedule.TABLE_NAME+" WHERE day_id = '" + toDay+"' AND time_start > '"+ currentTime +"';",null);
+//        if(check.moveToFirst()){
+//            while (!cursor.moveToFirst()){
+//                if(toDay<7){
+//                    toDay++;
+//                }else {
+//                    toDay = 1;
+//                }
+//                Log.d(sLOG_TAG, "Change day_id to "+toDay);
+//                cursor = db.rawQuery("SELECT * FROM "+ ScheduleContract.Schedule.TABLE_NAME+" WHERE day_id = '" + toDay +"' AND time_start > '"+ "00:00" +"';",null);
+//            }
+//        }else {
+//            nextLabel.setText("USER ID NOT FOUND!");
+//            lessonName.setText("");
+//            time.setText("");
+//            room.setText("");
+//        }
+//
+//        if(cursor.moveToFirst()){
+//            nextLabel.setText("Next Lesson");
+//            do{
+//                Log.d(sLOG_TAG,"LESSON " + cursor.getString(ScheduleFragment.COL_SCHEDULE_LESSON_FULL));
+//                lessonName.setText(cursor.getString(ScheduleFragment.COL_SCHEDULE_LESSON_FULL) +
+//                        " " + cursor.getString(ScheduleFragment.COL_SCHEDULE_CLASS));
+//                time.setText(cursor.getString(ScheduleFragment.COL_SCHEDULE_DAY) +
+//                        " at " + cursor.getString(ScheduleFragment.COL_SCHEDULE_TIME_START) +
+//                        " until "+cursor.getString(ScheduleFragment.COL_SCHEDULE_TIME_END));
+//                room.setText("in " + cursor.getString(ScheduleFragment.COL_SCHEDULE_ROOM));
+//                break;
+//            }while (cursor.moveToNext());
+//        }else{
+//            nextLabel.setText("USER ID NOT FOUND!");
+//            lessonName.setText("");
+//            time.setText("");
+//            room.setText("");
+//        }
+//        db.close();
+//    }
 
     public static class AlarmReceiver extends BroadcastReceiver {
 

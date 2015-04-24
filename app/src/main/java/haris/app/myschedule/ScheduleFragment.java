@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -21,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -139,7 +142,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         room = (TextView)rootView.findViewById(R.id.room_textView);
         nextLabel = (TextView)rootView.findViewById(R.id.next_lesson_textView);
 
-
+        mListView.setVisibility(View.VISIBLE);
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 
@@ -178,6 +181,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
             lessonName.setText("");
             time.setText("");
             room.setText("");
+//            update();
         }
 
         if(cursor.moveToFirst()){
@@ -190,14 +194,15 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
                 break;
             }while (cursor.moveToNext());
         }else{
-            nextLabel.setText("USER ID NOT FOUND!");
+            nextLabel.setText("Loading...");
             lessonName.setText("");
             time.setText("");
             room.setText("");
+            update();
         }
+
+
     }
-
-
 
     @Override
     public void onResume() {
@@ -278,7 +283,7 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
 //                            ));
                 ((Callback)getActivity())
                         .onItemSelected(Schedule.CONTENT_URI.buildUpon().appendPath("day").appendPath(cursor.getString(COL_SCHEDULE_DAY)).build());
-                        DetailFragment.DAY = cursor.getString(COL_SCHEDULE_DAY);
+                DetailFragment.DAY = cursor.getString(COL_SCHEDULE_DAY);
 ////                    startActivity(intent);
 
 //                ((Callback)getActivity())
@@ -344,7 +349,6 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
         mScheduleAdapter.swapCursor(null);
     }
 
@@ -365,12 +369,39 @@ public class ScheduleFragment extends Fragment implements LoaderManager.LoaderCa
         String request = "requestToServer";
         Intent sendIntent = new Intent(getActivity(), MyScheduleService.class);
         sendIntent.putExtra(Intent.EXTRA_TEXT, request);
+        sendIntent.putExtra("result", resultReceiver);
         Log.d(LOG_TAG, "INTENT  - Text extra update data " + request);
 //        String request = intent.getStringExtra(Intent.EXTRA_TEXT);
         sendIntent.putExtra(Intent.EXTRA_TEXT, request);
 //            sendIntent.putExtra(MyScheduleService.LOCATION_QUERY_EXTRA, intent.getStringExtra(MyScheduleService.LOCATION_QUERY_EXTRA));
         getActivity().startService(sendIntent);
 
-
     }
+
+    Handler handler = new Handler();
+    final ResultReceiver resultReceiver = new ResultReceiver(handler) {
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if(resultCode == 200){
+                try{
+                    nextLesson();
+
+                }catch (NullPointerException e){
+                    Log.d(LOG_TAG, "Null pointer Exeption");
+                }
+
+                Toast.makeText(getActivity(), resultData.getString("result"), Toast.LENGTH_SHORT).show();
+            }else if (resultCode == 201){
+                nextLabel = (TextView)rootView.findViewById(R.id.next_lesson_textView);
+                nextLabel.setText(resultData.getString("result"));
+                mListView.setVisibility(View.VISIBLE);
+            }else if(resultCode == 404){
+                nextLabel = (TextView)rootView.findViewById(R.id.next_lesson_textView);
+                nextLabel.setText(resultData.getString("result"));
+                mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+                mListView.setVisibility(View.INVISIBLE);
+            }
+
+        }
+    };
 }

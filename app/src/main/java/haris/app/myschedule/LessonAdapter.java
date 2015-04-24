@@ -13,6 +13,7 @@ import android.widget.TextView;
  */
 public class LessonAdapter extends CursorAdapter {
 
+    View rootView;
 
     public LessonAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -35,6 +36,7 @@ public class LessonAdapter extends CursorAdapter {
         viewHolder.lessonClass.setText("Class " + cursor.getString(5));
         viewHolder.lessonTime.setText("At " + cursor.getString(3) + " until "+cursor.getString(4));
         viewHolder.lessonRoom.setText("In room "+cursor.getString(6));
+
 
     }
 

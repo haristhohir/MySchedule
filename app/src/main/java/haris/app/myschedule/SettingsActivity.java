@@ -8,11 +8,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import haris.app.myschedule.service.MyScheduleService;
 
@@ -100,6 +103,7 @@ public class SettingsActivity extends PreferenceActivity
     public void update(boolean serverRequest){
         Intent alarmIntent = new Intent(getApplicationContext(), MyScheduleService.AlarmReceiver.class);
         String request;
+        alarmIntent.putExtra("result", resultReceiver);
         if(serverRequest){
             alarmIntent.putExtra(Intent.EXTRA_TEXT, "requestToServer");
             request =  "requestToServer";
@@ -112,6 +116,7 @@ public class SettingsActivity extends PreferenceActivity
         PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
         AlarmManager am=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
         //Set the AlarmManager to wake up the system.
+        Log.d(sLOG_TAG,"time millis "+System.currentTimeMillis() );
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
 
 
@@ -125,4 +130,12 @@ public class SettingsActivity extends PreferenceActivity
 //        context.startService(sendIntent);
 
     }
+    Handler handler = new Handler();
+    final ResultReceiver resultReceiver = new ResultReceiver(handler) {
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+                Toast.makeText(getApplicationContext(), resultData.getString("result"), Toast.LENGTH_SHORT).show();
+
+        }
+    };
 }
